@@ -7,7 +7,7 @@
   "type": "module",
   "name": "githubconnect",
   "description": "![Logo](logo.png) --- Receive notice of Repos' events (push, commit, and more) Also allow editting repos",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
@@ -16,5 +16,5 @@
     "github"
   ],
   "author": "Hugodonotexit",
-  "license": "ISC"
+  "license": "MIT"
 }
