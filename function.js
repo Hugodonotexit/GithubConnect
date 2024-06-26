@@ -8,11 +8,11 @@ export async function help(message) {
     description: 'Here are the available commands:',
     fields: [
         { name: 'User Commands', 
-            value: '🔹 **user <username>** - Show user detail\n' +
-                   '🔹 **user <username> repos** - List of user\'s repos', 
+            value: '🔹 **gc user <username>** - Show user detail\n' +
+                   '🔹 **gc user <username> repos** - List of user\'s repos', 
                    inline: false },
         { name: 'Repo Commands', 
-            value: '🔹 **repo <username> <repo>** - Show repo\'s detail', 
+            value: '🔹 **gc repo <username> <repo>** - Show repo\'s detail', 
                    inline: false }
     ]
     }
