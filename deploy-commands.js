@@ -1,63 +1,77 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { REST, Routes } from 'discord.js';
 import dotenv from 'dotenv';
-import * as functions from './function.js';
-import { execFile } from 'child_process';
 
 dotenv.config();
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-    ],
-});
+const commands = [
+    {
+        name: 'gc',
+        description: 'Various GitHub commands',
+        options: [
+            {
+                name: 'user',
+                type: 1, // SUB_COMMAND
+                description: 'Get user information',
+                options: [
+                    {
+                        name: 'username',
+                        type: 3, // STRING
+                        description: 'GitHub username',
+                        required: true,
+                    },
+                    {
+                        name: 'repos',
+                        type: 3, // STRING
+                        description: 'List repos of the user',
+                        required: false,
+                    },
+                ],
+            },
+            {
+                name: 'repo',
+                type: 1, // SUB_COMMAND
+                description: 'Get repository information',
+                options: [
+                    {
+                        name: 'name',
+                        type: 3, // STRING
+                        description: 'Repository name',
+                        required: true,
+                    },
+                    {
+                        name: 'owner',
+                        type: 3, // STRING
+                        description: 'Repository owner',
+                        required: false,
+                    },
+                ],
+            },
+            {
+                name: 'help',
+                type: 1, // SUB_COMMAND
+                description: 'Get help information',
+            },
+        ],
+    },
+    {
+        name: 'depressing',
+        description: 'Get a depressing quote',
+    },
+];
 
-client.once('ready', () => {
-    console.log('Bot is online!');
-});
+const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN);
 
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
+(async () => {
+    try {
+        console.log('Started refreshing application (/) commands.');
 
-    const { commandName, options } = interaction;
+        await rest.put(
+            Routes.applicationCommands('your-client-id'),
+            { body: commands },
+        );
 
-    if (commandName === 'gc') {
-        const subCommand = options.getSubcommand();
-        if (subCommand === 'user') {
-            const username = options.getString('username');
-            const repos = options.getString('repos');
-            if (repos) {
-                await functions.listrepos(username, interaction);
-            } else {
-                await functions.usr(username, interaction);
-            }
-        } else if (subCommand === 'repo') {
-            const name = options.getString('name');
-            const owner = options.getString('owner');
-            const repoPath = owner ? `${owner}/${name}` : name;
-            await functions.repo(repoPath, interaction);
-        } else if (subCommand === 'help') {
-            await functions.help(interaction);
-        }
-    } else if (commandName === 'depressing') {
-        const executablePath = './depressingQuote.out';
-        execFile(executablePath, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error executing the C++ program: ${error.message}`);
-                interaction.reply('There was an error executing the C++ program.');
-                return;
-            }
-        
-            if (stderr) {
-                console.error(`stderr: ${stderr}`);
-                interaction.reply('There was an error in the C++ program.');
-                return;
-            }
-
-            interaction.reply(`${stdout}`);
-        });
+        console.log('Successfully reloaded application (/) commands.');
+    } catch (error) {
+        console.error(error);
     }
-});
-
-client.login(process.env.DISCORD_BOT_TOKEN);
+})();

@@ -17,64 +17,46 @@ client.once('ready', () => {
     console.log('Bot is online!');
 });
 
-client.on('messageCreate', async message => {
-    const currentDateTime = new Date().toLocaleString();
-    console.log(`[${currentDateTime}] ${message.author.username}: ${message.content}`);
-    if (message.content.startsWith('!gc')) {
-        const args = message.content.split(' ');
-        switch (args[1]) {
-            case 'user':
-                switch (args.length) {
-                    case 3:
-                        await functions.usr(args[2],message);
-                    break
-                    case 4:
-                        switch (args[3]) {
-                            case 'repos':
-                                await functions.listrepos(args[2],message);
-                            break;
-                        }
-                    break;
-                }
-                
-            break;
-            case 'repo':
-                switch (args.length) {
-                    case 3:
-                        await functions.repo(args[2],message);
-                    break
-                    case 4:
-                        const str = args[2] + '/' + args[3];
-                        await functions.repo(str,message);
-                    break;
-                }
-            break;
-            case 'Hugodonotexit':
-                await message.channel.send("Bro is depressed");
-                await functions.usr(args[1],message);
-            break;
-            case 'help':
-                await functions.help(message);
-            break;
-            default:
-                await message.channel.send('Invalid command. Use !gc help for help.');
-            break;
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName, options } = interaction;
+
+    if (commandName === 'gc') {
+        const subCommand = options.getSubcommand();
+        if (subCommand === 'user') {
+            const username = options.getString('username');
+            const repos = options.getString('repos');
+            if (repos) {
+                await functions.listrepos(username, interaction);
+            } else {
+                await functions.usr(username, interaction);
+            }
+        } else if (subCommand === 'repo') {
+            const name = options.getString('name');
+            const owner = options.getString('owner');
+            const repoPath = owner ? `${owner}/${name}` : name;
+            await functions.repo(repoPath, interaction);
+        } else if (subCommand === 'help') {
+            await functions.help(interaction);
         }
-  
-    } else if (message.content.startsWith('!depressing')) {
+    } else if (commandName === 'depressing') {
         const executablePath = './depressingQuote.out';
         execFile(executablePath, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error executing the C++ program: ${error.message}`);
+                interaction.reply('There was an error executing the C++ program.');
                 return;
             }
         
             if (stderr) {
                 console.error(`stderr: ${stderr}`);
+                interaction.reply('There was an error in the C++ program.');
                 return;
             }
-            message.channel.send(`${stdout}`);
-    });
+
+            interaction.reply(`${stdout}`);
+        });
     }
 });
 
