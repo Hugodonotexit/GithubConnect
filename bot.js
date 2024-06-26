@@ -20,7 +20,7 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
     const currentDateTime = new Date().toLocaleString();
-    console.log(`[${currentDateTime}] ${message.author.username}: ${message.content}`);
+    console.log(`[${currentDateTime}] ${interaction.author.username}: ${interaction.content}`);
     
     const { commandName, options } = interaction;
 
