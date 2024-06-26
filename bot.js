@@ -20,7 +20,7 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
     const currentDateTime = new Date().toLocaleString();
-    console.log(`[${currentDateTime}] ${interaction.author.username}: ${interaction.content}`);
+    console.log(`[${currentDateTime}] ${interaction.user.tag}: ${interaction.commandName} ${interaction.options.data.map(option => `${option.name}: ${option.value}`).join(', ')}`);
     
     const { commandName, options } = interaction;
 
